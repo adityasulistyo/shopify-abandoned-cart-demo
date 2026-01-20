@@ -90,9 +90,4 @@ graph LR
 
 [Open for Hire] | [View Portfolio](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/adityasulistyo)
 
-```
 
-***
-*Good luck with the hunting!* Project portofolio ini sudah sangat layak jual. 🚀
-
-```
