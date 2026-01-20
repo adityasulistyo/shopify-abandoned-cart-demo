@@ -54,7 +54,7 @@ This solution is designed for **Headless Commerce** setups (e.g., Webflow Front-
 graph LR
     A[User Types Data] --> B{Idle for 30s?};
     B -- Yes --> C[Frontend Script];
-    C -->|Secure Payload| D[Webhook (Make/Zapier)];
+    C -->|Secure Payload| D["Webhook (Make/Zapier)"];
     D -->|Admin API| E[Shopify Draft Order];
     E --> F[WhatsApp Team Follow-up];
 
