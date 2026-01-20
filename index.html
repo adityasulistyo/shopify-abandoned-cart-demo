@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COD System - Abandoned Cart Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .info-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2e7d32;
+        }
+
+        .info-box strong {
+            color: #1b5e20;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        label .required {
+            color: #e74c3c;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2c3e50;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(44, 62, 80, 0.1);
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        .submit-btn {
+            background: #27ae60;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .submit-btn:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        #status-log {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+            min-height: 100px;
+        }
+
+        #status-log strong {
+            color: #2c3e50;
+            font-size: 14px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #log-content {
+            font-size: 13px;
+            color: #495057;
+            line-height: 1.8;
+        }
+
+        .status-waiting {
+            color: #6c757d;
+        }
+
+        .status-typing {
+            color: #007bff;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-abandoned {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .badge-demo {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .form-content {
+                padding: 20px;
+            }
+
+            input, select {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            .submit-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .info-box {
+                padding: 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🛒 COD Order Form <span class="badge badge-demo">Demo</span></h1>
+            <p>Automatic Abandoned Cart Detection System</p>
+        </div>
+
+        <div class="form-content">
+            <div class="info-box">
+                💡 <strong>How to Test:</strong> Fill out the form below, then <strong>wait for 3 seconds</strong> without pressing the button. The system will automatically detect abandoned cart!
+            </div>
+
+            <form id="cod-form">
+                <div class="form-group">
+                    <label for="name">Full Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" placeholder="e.g., John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">WhatsApp Number <span class="required">*</span></label>
+                    <input type="tel" id="phone" name="phone" placeholder="+62 812 3456 7890" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="product">Select Product</label>
+                    <select id="product" name="product">
+                        <option value="Package A - $150">Package A - $150</option>
+                        <option value="Package B - $250">Package B - $250</option>
+                        <option value="Package C - $350">Package C - $350</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">🚀 Buy Now (COD)</button>
+            </form>
+
+            <div id="status-log">
+                <strong>📊 System Log</strong>
+                <div id="log-content" class="status-waiting">Waiting for user input...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timeout Configuration (in milliseconds). 
+        // In production usually 30000 (30 seconds), we set 3000 (3 seconds) for quick testing.
+        const ABANDONED_TIMEOUT = 3000; 
+        
+        let timer; // Variable to store timer
+        const form = document.getElementById('cod-form');
+        const inputs = form.querySelectorAll('input, select');
+        const logArea = document.getElementById('log-content');
+
+        // Function to send data (Simulation to Webhook Make.com/Shopify)
+        function sendAbandonedData() {
+            // 1. Get current form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Validation: Don't send if name/phone is still empty
+            if(!data.name && !data.phone) return;
+
+            // 2. Simulate Data Sending (In real project, use fetch())
+            const timestamp = new Date().toLocaleTimeString('en-US');
+            const message = `
+                <div class="status-abandoned">
+                    ⚠️ <strong>ABANDONED CART DETECTED!</strong><br><br>
+                    🕐 Time: ${timestamp}<br>
+                    📤 Sending data to Shopify Draft Order...<br><br>
+                    <strong>Customer Data:</strong><br>
+                    👤 Name: ${data.name || '<em>(empty)</em>'}<br>
+                    📱 Phone: ${data.phone || '<em>(empty)</em>'}<br>
+                    📦 Item: ${data.product}
+                </div>
+            `;
+            
+            // Display in log screen
+            logArea.innerHTML = message;
+            logArea.className = 'status-abandoned';
+            console.log("Payload sent to Webhook:", data);
+        }
+
+        // Main Logic: Reset timer every time user types
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                logArea.innerHTML = "⌨️ User is typing in the form...";
+                logArea.className = 'status-typing';
+                
+                // Clear old timer (because user is still active)
+                clearTimeout(timer);
+
+                // Set new timer. If user is idle for 3 seconds, run sendAbandonedData function
+                timer = setTimeout(sendAbandonedData, ABANDONED_TIMEOUT);
+            });
+        });
+
+        // Optional: If user actually submits, cancel abandoned cart timer
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent page reload
+            clearTimeout(timer);
+            
+            const timestamp = new Date().toLocaleTimeString('en-US');
+            logArea.innerHTML = `
+                <div class="status-success">
+                    ✅ <strong>ORDER SUCCESS!</strong><br><br>
+                    🕐 Time: ${timestamp}<br>
+                    📤 Data sent as <strong>Real Order</strong>, not Abandoned.<br>
+                    🎉 Thank you for your order!
+                </div>
+            `;
+            logArea.className = 'status-success';
+            console.log("Form submitted normally.");
+        });
+
+    </script>
+</body>
+</html>
